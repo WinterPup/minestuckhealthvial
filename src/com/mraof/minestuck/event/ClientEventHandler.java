@@ -95,6 +95,7 @@ public class ClientEventHandler
 		if(event.getEntity() != null && event.getEntity() instanceof EntityPlayer) {
 			
 			updateHealthVialPlayer(event);
+			updateHealthVialBar(event);
 			
 		}
 		
@@ -114,8 +115,8 @@ public class ClientEventHandler
 		double z = event.getEntity().posZ - localPlayer.posZ;
 		GL11.glPushMatrix();
 		GL11.glTranslated(x, y, z);
-		Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation("minestuck", "textures/gui/healthvialbackground"));
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 100.0F, 100.0F);
+		Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation("minestuck", "textures/gui/healthvialbackground.png"));
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 200.0F, 200.0F);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.rotate(180.0F - event.getRenderer().getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
 		buffer.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL);
@@ -130,6 +131,37 @@ public class ClientEventHandler
 		
 		return currentHealth;
 		
+	}
+	
+	public float updateHealthVialBar(RenderLivingEvent.Pre event) {
+		
+		float currentHealth = event.getEntity().getHealth();
+		
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+	        
+	        
+	   	EntityPlayer localPlayer = Minecraft.getMinecraft().player;
+	   	double healthPercentage = localPlayer.getHealth() / localPlayer.getMaxHealth();
+		double x = event.getEntity().posX - localPlayer.posX;
+		double y = event.getEntity().posY - localPlayer.posY;
+		double z = event.getEntity().posZ - localPlayer.posZ;
+		GL11.glPushMatrix();
+		GL11.glTranslated(x, y, z);
+		Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation("minestuck", "textures/gui/healthvial.png"));
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 100.0F, 100.0F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.rotate(180.0F - event.getRenderer().getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
+		buffer.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL);
+		buffer.pos(healthPercentage - 1.0D, 1.75D, 0.1D).tex(0.0D, 1.0D).normal(0.0F, 1.0F, 0.0F).endVertex();
+		buffer.pos(healthPercentage, 1.25D, 0.1D).tex(1.0D, 1.0D).normal(0.0F, 1.0F, 0.0F).endVertex();
+		buffer.pos(healthPercentage, 1.25D, 0.1D).tex(1.0D, 0.0D).normal(0.0F, 1.0F, 0.0F).endVertex();
+		buffer.pos(healthPercentage - 1.0D, 1.75D, 0.1D).tex(0.0D, 0.0D).normal(0.0F, 1.0F, 0.0F).endVertex();
+		Tessellator.getInstance().draw();
+		GlStateManager.disableBlend();
+		GlStateManager.disableRescaleNormal();
+		GL11.glPopMatrix();
+		
+		return currentHealth;
 	}
 	
 }
